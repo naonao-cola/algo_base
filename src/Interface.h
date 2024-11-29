@@ -45,12 +45,12 @@ __export void* tapp_init();
  * 算法运行通用参数配置，如并行线程数，优先级，日志级别等
  * @common_config_json: json配置参数, 线程配置，日志输出等
 */
-__export void tapp_common_config(void* handle, const char* common_config_json);
+__export int tapp_common_config(void* handle, const char* common_config_json);
 
 /**
  * 检测算法具体参数、判定条件配置
 */
-__export void tapp_algo_config(void* handle, const char* algo_config_json);
+__export int tapp_algo_config(void* handle, const char* algo_config_json);
 
 /**
  * 注册结果回调函数，回调结果以json字符串型式返回

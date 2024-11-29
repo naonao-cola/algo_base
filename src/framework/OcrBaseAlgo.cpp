@@ -58,8 +58,9 @@ void OcrBaseAlgo::TextDet(cv::Mat image, std::vector<OcrDataPtr>& ocrdata_list, 
     ModelResultPtr ocrDetRst = GetAIRuntime()->RunInferTask(_task);
 
     stModelResult* pResult = ocrDetRst.get();
-    if (pResult == nullptr) {
-        LOGE("NO result");
+    if (pResult == nullptr || pResult->itemList.size() == 0) {
+        LOGW("TextDet() NO result!");
+        return;
     }
 
     auto item_list = ocrDetRst->itemList[0];    // 只有一张图片

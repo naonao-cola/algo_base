@@ -39,9 +39,9 @@ json ReadJsonFile(std::string filepath)
     return std::move(jsonObj);
 }
 
-const char* DumpJson(json jsonObj, bool toAnsi=true)
+std::string DumpJson(json jsonObj, bool toAnsi=true)
 {
-    return toAnsi ? StringConvert::Utf8ToAnsi(jsonObj.dump(2).c_str()) : jsonObj.dump(2).c_str();
+    return toAnsi ? StringConvert::Utf8ToAnsi(jsonObj.dump(2)) : jsonObj.dump(2);
 }
 
 
@@ -65,8 +65,8 @@ int main(int args, char** argv) {
     std::filesystem::current_path(std::filesystem::path(WORK_DIR));
 
     // std::string test_folder = "./test_data/tayin/";
-    json common_cfg = ReadJsonFile("./config/common_cfg.json");
-    json algo_cfg = ReadJsonFile("./config/algo_cfg.json");
+    json common_cfg = ReadJsonFile("./config/ocr_common_cfg.json");
+    json algo_cfg = ReadJsonFile("./config/ocr_algo_cfg.json");
     json image_info = ReadJsonFile("./config/image_info.json");
     
     std::cout << "CommonConfig main: " << common_cfg.dump(2) << std::endl;
@@ -80,8 +80,18 @@ int main(int args, char** argv) {
         return 0;
     }
 
-    tapp_common_config(pHandle, DumpJson(common_cfg));
-    tapp_algo_config(pHandle, DumpJson(algo_cfg));
+    int errCode = tapp_common_config(pHandle, DumpJson(common_cfg).c_str());
+    if (errCode != 0) {
+        cout<<"tapp_common_config fail. errCode:"<<errCode<<endl;
+        return 0;
+    }
+
+    errCode = tapp_algo_config(pHandle, DumpJson(algo_cfg).c_str());
+    if (errCode != 0) {
+        cout<<"tapp_algo_config fail. errCode:"<<errCode<<endl;
+        return 0;
+    }
+
     tapp_register_result_callback(pHandle, RecultCallback);
 
     int count = 0;
@@ -109,7 +119,7 @@ int main(int args, char** argv) {
                             g_img_list.push_back(img);
                             if (img.empty())
                                 continue;
-                            int ret = tapp_run(pHandle, img.data, DumpJson(item));
+                            int ret = tapp_run(pHandle, img.data, DumpJson(item).c_str());
                             // std::cout<<"@@Result["<< count <<"]:" << ""<<std::string(result)<<std::endl;
                             count++;
                         }
@@ -134,7 +144,7 @@ int main(int args, char** argv) {
                                 g_img_list.push_back(img);
                                 if (img.empty())
                                     continue;
-                                int ret = tapp_run(pHandle, img.data, DumpJson(item));
+                                int ret = tapp_run(pHandle, img.data, DumpJson(item).c_str());
                                 // std::cout<<"@@Result["<< count <<"]:" << ""<<std::string(result)<<std::endl;
                                 count++;
                             }
@@ -150,7 +160,7 @@ int main(int args, char** argv) {
                 item["img_w"] = img.cols;
                 item["img_h"] = img.rows;
                 g_img_list.push_back(img);
-                int ret = tapp_run(pHandle, img.data, DumpJson(item));
+                int ret = tapp_run(pHandle, img.data, DumpJson(item).c_str());
                 count++;
             }
         }

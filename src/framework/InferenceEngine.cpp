@@ -137,7 +137,7 @@ ErrorCode InferenceEngine::ConfigSystemParams(const json &common_cfg)
         }
 
         for (auto ai_param : ai_models) {
-             stAIModelInfo model_cfg;
+            stAIModelInfo model_cfg;
             json m_InferParam = Utils::GetProperty(ai_param, "InferParam", json::array());
             model_cfg.modelId = Utils::GetProperty(ai_param, "model_id", -1);
             model_cfg.modelVersion = Utils::GetProperty(ai_param, "model_version", 1);
@@ -318,7 +318,7 @@ void InferenceEngine::ResultCallbackWorker()
         if (m_result_callback == nullptr) {
             LOGW("Result callback is null. SKIP.")
         } else {
-            m_result_callback(Utils::DumpJson(results->image_info), Utils::DumpJson(results->results));
+            m_result_callback(Utils::DumpJson(results->image_info).c_str(), Utils::DumpJson(results->results).c_str());
         }
     }
     LOGI("Result thread exit.");

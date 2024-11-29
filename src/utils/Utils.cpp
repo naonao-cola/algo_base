@@ -18,9 +18,9 @@ json Utils::ParseJsonText(const char* json_text, bool is_ansi)
     return std::move(jsonObj);
 }
 
-const char* Utils::DumpJson(json jsonObj, bool toAnsi)
+std::string Utils::DumpJson(json jsonObj, bool toAnsi)
 {
-    return toAnsi ? StringConvert::Utf8ToAnsi(jsonObj.dump().c_str()) : jsonObj.dump().c_str();
+    return toAnsi ? StringConvert::Utf8ToAnsi(jsonObj.dump()) : jsonObj.dump();
 }
 
 cv::Mat Utils::GenCvImage(unsigned char* img_data, const json& img_info)

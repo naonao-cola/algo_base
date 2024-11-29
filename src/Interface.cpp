@@ -45,20 +45,20 @@ void* tapp_init()
     return (int*)pEngine;
 }
 
-void tapp_common_config(void* handle, const char* common_config_json)
+int tapp_common_config(void* handle, const char* common_config_json)
 {
     std::string utf8_str = StringConvert::AnsiToUtf8(std::string(common_config_json));
     json config = json::parse(utf8_str);
     InferenceEngine* pEngine = static_cast<InferenceEngine*>(handle);
-    pEngine->ConfigSystemParams(config);
+    return (int)pEngine->ConfigSystemParams(config);
 }
 
-void tapp_algo_config(void* handle, const char* algo_config_json)
+int tapp_algo_config(void* handle, const char* algo_config_json)
 {
     std::string utf8_str = StringConvert::AnsiToUtf8(std::string(algo_config_json));
     json config = json::parse(utf8_str);
     InferenceEngine* pEngine = static_cast<InferenceEngine*>(handle);
-    pEngine->ConfigAlgoParams(config);
+    return (int)pEngine->ConfigAlgoParams(config);
 }
 
  void tapp_register_result_callback(void* handle, ResultCallbackFunc callback)
@@ -143,7 +143,7 @@ const char* tapp_sync_run(void* handle, unsigned char* img_data, const char* img
         std::stringstream ss;
         ss << "0x" << std::setfill('0') << std::setw(sizeof(void*) * 2) << std::hex << reinterpret_cast<uintptr_t>(handle);
         LOGE("Invalide Handle. {}", ss.str());
-        return Utils::DumpJson(Utils::GenErrorResult(ErrorCode::INVALID_HANDLE));;
+        return Utils::DumpJson(Utils::GenErrorResult(ErrorCode::INVALID_HANDLE)).c_str();
     }
 
     try {
@@ -152,7 +152,7 @@ const char* tapp_sync_run(void* handle, unsigned char* img_data, const char* img
         if (ret != 0)
         {
             LOGE("tapp_run fail!! ErrorCode:{}", ret);
-            return Utils::DumpJson(Utils::GenErrorResult(ErrorCode::LICENSE_ERROR));
+            return Utils::DumpJson(Utils::GenErrorResult(ErrorCode::LICENSE_ERROR)).c_str();
         }
 #endif
         InferTaskPtr task = std::make_shared<stInferTask>();
@@ -161,9 +161,9 @@ const char* tapp_sync_run(void* handle, unsigned char* img_data, const char* img
         task->img_data = task->image.data;
         if (task->image.empty()) {
             LOGE("Generate image from buffer fail!!");
-            return Utils::DumpJson(Utils::GenErrorResult(ErrorCode::INVALID_IMG_DATA));
+            return Utils::DumpJson(Utils::GenErrorResult(ErrorCode::INVALID_IMG_DATA)).c_str();
         }
-        return Utils::DumpJson(pEngine->SyncRunInferTask(task));
+        return Utils::DumpJson(pEngine->SyncRunInferTask(task)).c_str();
     } catch (const nlohmann::json::exception& e) {
         LOGE("Json exception: {}", e.what());
         CrashCatch::PrintExceptionStackTrace();
@@ -175,7 +175,7 @@ const char* tapp_sync_run(void* handle, unsigned char* img_data, const char* img
         CrashCatch::PrintExceptionStackTrace();
     }
 
-    return Utils::DumpJson(Utils::GenErrorResult(ErrorCode::UNKNOWN_ERROR));
+    return Utils::DumpJson(Utils::GenErrorResult(ErrorCode::UNKNOWN_ERROR)).c_str();
  }
 
 void tapp_destroy(void* handle)

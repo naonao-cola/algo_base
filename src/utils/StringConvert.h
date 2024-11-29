@@ -7,6 +7,141 @@
 class StringConvert
 {
 public:
+    static bool AnsiToUnicode(const char *lpszAnsi, wchar_t *lpszUnicode, int nLen)
+    {
+        int nRet = MultiByteToWideChar(CP_ACP, 0, lpszAnsi, -1, lpszUnicode, nLen);
+        return (0 == nRet) ? FALSE : TRUE;
+    }
+
+    static bool UnicodeToAnsi(const wchar_t *lpszUnicode, char *lpszAnsi, int nLen)
+    {
+        int nRet = WideCharToMultiByte(CP_ACP, 0, lpszUnicode, -1, lpszAnsi, nLen, NULL, NULL);
+        return (0 == nRet) ? FALSE : TRUE;
+    }
+
+    static bool AnsiToUtf8(const char *lpszAnsi, char *lpszUtf8, int nLen)
+    {
+        wchar_t *lpszUnicode = AnsiToUnicode(lpszAnsi);
+        if (NULL == lpszUnicode)
+            return FALSE;
+
+        int nRet = UnicodeToUtf8(lpszUnicode, lpszUtf8, nLen);
+
+        delete[] lpszUnicode;
+
+        return (0 == nRet) ? FALSE : TRUE;
+    }
+
+    static bool Utf8ToAnsi(const char *lpszUtf8, char *lpszAnsi, int nLen)
+    {
+        wchar_t *lpszUnicode = Utf8ToUnicode(lpszUtf8);
+        if (NULL == lpszUnicode)
+            return FALSE;
+
+        int nRet = UnicodeToAnsi(lpszUnicode, lpszAnsi, nLen);
+
+        delete[] lpszUnicode;
+
+        return (0 == nRet) ? FALSE : TRUE;
+    }
+
+    static bool UnicodeToUtf8(const wchar_t *lpszUnicode, char *lpszUtf8, int nLen)
+    {
+        int nRet = WideCharToMultiByte(CP_UTF8, 0, lpszUnicode, -1, lpszUtf8, nLen, NULL, NULL);
+        return (0 == nRet) ? FALSE : TRUE;
+    }
+
+    static bool Utf8ToUnicode(const char *lpszUtf8, wchar_t *lpszUnicode, int nLen)
+    {
+        int nRet = MultiByteToWideChar(CP_UTF8, 0, lpszUtf8, -1, lpszUnicode, nLen);
+        return (0 == nRet) ? FALSE : TRUE;
+    }
+
+    static std::wstring AnsiToUnicode(const std::string &strAnsi)
+    {
+        std::wstring strUnicode;
+
+        wchar_t *lpszUnicode = AnsiToUnicode(strAnsi.c_str());
+        if (lpszUnicode != NULL)
+        {
+            strUnicode = lpszUnicode;
+            delete[] lpszUnicode;
+        }
+
+        return strUnicode;
+    }
+    static std::string UnicodeToAnsi(const std::wstring &strUnicode)
+    {
+        std::string strAnsi;
+
+        char *lpszAnsi = UnicodeToAnsi(strUnicode.c_str());
+        if (lpszAnsi != NULL)
+        {
+            strAnsi = lpszAnsi;
+            delete[] lpszAnsi;
+        }
+
+        return strAnsi;
+    }
+
+    static std::string AnsiToUtf8(const std::string &strAnsi)
+    {
+        std::string strUtf8;
+
+        char *lpszUtf8 = AnsiToUtf8(strAnsi.c_str());
+        if (lpszUtf8 != NULL)
+        {
+            strUtf8 = lpszUtf8;
+            delete[] lpszUtf8;
+        }
+
+        return strUtf8;
+    }
+
+    static std::string Utf8ToAnsi(const std::string &strUtf8)
+    {
+        std::string strAnsi;
+
+        char *lpszAnsi = Utf8ToAnsi(strUtf8.c_str());
+        if (lpszAnsi != NULL)
+        {
+            strAnsi = lpszAnsi;
+            delete[] lpszAnsi;
+        }
+
+        return strAnsi;
+    }
+
+    static std::string UnicodeToUtf8(const std::wstring &strUnicode)
+    {
+        std::string strUtf8;
+
+        char *lpszUtf8 = UnicodeToUtf8(strUnicode.c_str());
+        if (lpszUtf8 != NULL)
+        {
+            strUtf8 = lpszUtf8;
+            delete[] lpszUtf8;
+        }
+
+        return strUtf8;
+    }
+
+    static std::wstring Utf8ToUnicode(const std::string &strUtf8)
+    {
+        std::wstring strUnicode;
+
+        wchar_t *lpszUnicode = Utf8ToUnicode(strUtf8.c_str());
+        if (lpszUnicode != NULL)
+        {
+            strUnicode = lpszUnicode;
+            delete[] lpszUnicode;
+        }
+
+        return strUnicode;
+    }
+
+private:
+    // 以下方法需要手动释放内存，容易引起内存泄露，不推荐使用
     static wchar_t *AnsiToUnicode(const char *lpszStr)
     {
         wchar_t *lpUnicode;
@@ -219,138 +354,5 @@ public:
         }
 
         return lpUnicode;
-    }
-
-    static bool AnsiToUnicode(const char *lpszAnsi, wchar_t *lpszUnicode, int nLen)
-    {
-        int nRet = MultiByteToWideChar(CP_ACP, 0, lpszAnsi, -1, lpszUnicode, nLen);
-        return (0 == nRet) ? FALSE : TRUE;
-    }
-
-    static bool UnicodeToAnsi(const wchar_t *lpszUnicode, char *lpszAnsi, int nLen)
-    {
-        int nRet = WideCharToMultiByte(CP_ACP, 0, lpszUnicode, -1, lpszAnsi, nLen, NULL, NULL);
-        return (0 == nRet) ? FALSE : TRUE;
-    }
-
-    static bool AnsiToUtf8(const char *lpszAnsi, char *lpszUtf8, int nLen)
-    {
-        wchar_t *lpszUnicode = AnsiToUnicode(lpszAnsi);
-        if (NULL == lpszUnicode)
-            return FALSE;
-
-        int nRet = UnicodeToUtf8(lpszUnicode, lpszUtf8, nLen);
-
-        delete[] lpszUnicode;
-
-        return (0 == nRet) ? FALSE : TRUE;
-    }
-
-    static bool Utf8ToAnsi(const char *lpszUtf8, char *lpszAnsi, int nLen)
-    {
-        wchar_t *lpszUnicode = Utf8ToUnicode(lpszUtf8);
-        if (NULL == lpszUnicode)
-            return FALSE;
-
-        int nRet = UnicodeToAnsi(lpszUnicode, lpszAnsi, nLen);
-
-        delete[] lpszUnicode;
-
-        return (0 == nRet) ? FALSE : TRUE;
-    }
-
-    static bool UnicodeToUtf8(const wchar_t *lpszUnicode, char *lpszUtf8, int nLen)
-    {
-        int nRet = WideCharToMultiByte(CP_UTF8, 0, lpszUnicode, -1, lpszUtf8, nLen, NULL, NULL);
-        return (0 == nRet) ? FALSE : TRUE;
-    }
-
-    static bool Utf8ToUnicode(const char *lpszUtf8, wchar_t *lpszUnicode, int nLen)
-    {
-        int nRet = MultiByteToWideChar(CP_UTF8, 0, lpszUtf8, -1, lpszUnicode, nLen);
-        return (0 == nRet) ? FALSE : TRUE;
-    }
-
-    static std::wstring AnsiToUnicode(const std::string &strAnsi)
-    {
-        std::wstring strUnicode;
-
-        wchar_t *lpszUnicode = AnsiToUnicode(strAnsi.c_str());
-        if (lpszUnicode != NULL)
-        {
-            strUnicode = lpszUnicode;
-            delete[] lpszUnicode;
-        }
-
-        return strUnicode;
-    }
-    static std::string UnicodeToAnsi(const std::wstring &strUnicode)
-    {
-        std::string strAnsi;
-
-        char *lpszAnsi = UnicodeToAnsi(strUnicode.c_str());
-        if (lpszAnsi != NULL)
-        {
-            strAnsi = lpszAnsi;
-            delete[] lpszAnsi;
-        }
-
-        return strAnsi;
-    }
-
-    static std::string AnsiToUtf8(const std::string &strAnsi)
-    {
-        std::string strUtf8;
-
-        char *lpszUtf8 = AnsiToUtf8(strAnsi.c_str());
-        if (lpszUtf8 != NULL)
-        {
-            strUtf8 = lpszUtf8;
-            delete[] lpszUtf8;
-        }
-
-        return strUtf8;
-    }
-
-    static std::string Utf8ToAnsi(const std::string &strUtf8)
-    {
-        std::string strAnsi;
-
-        char *lpszAnsi = Utf8ToAnsi(strUtf8.c_str());
-        if (lpszAnsi != NULL)
-        {
-            strAnsi = lpszAnsi;
-            delete[] lpszAnsi;
-        }
-
-        return strAnsi;
-    }
-
-    static std::string UnicodeToUtf8(const std::wstring &strUnicode)
-    {
-        std::string strUtf8;
-
-        char *lpszUtf8 = UnicodeToUtf8(strUnicode.c_str());
-        if (lpszUtf8 != NULL)
-        {
-            strUtf8 = lpszUtf8;
-            delete[] lpszUtf8;
-        }
-
-        return strUtf8;
-    }
-
-    static std::wstring Utf8ToUnicode(const std::string &strUtf8)
-    {
-        std::wstring strUnicode;
-
-        wchar_t *lpszUnicode = Utf8ToUnicode(strUtf8.c_str());
-        if (lpszUnicode != NULL)
-        {
-            strUnicode = lpszUnicode;
-            delete[] lpszUnicode;
-        }
-
-        return strUnicode;
     }
 };

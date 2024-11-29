@@ -19,7 +19,7 @@ class Utils
 public:
     static json ReadJsonFile(std::string filepath);
     static json ParseJsonText(const char* json_text, bool is_ansi=true);
-    static const char* DumpJson(json jsonObj, bool toAnsi=true);
+    static std::string DumpJson(json jsonObj, bool toAnsi=true);
     static cv::Mat GenCvImage(unsigned char* img_data, const json& img_info);
     static int GetCvType(int img_c);
 
