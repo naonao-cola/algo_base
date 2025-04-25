@@ -6,6 +6,8 @@
 #include "utils/Logger.h"
 #include "utils/StringConvert.h"
 #include "utils/Utils.h"
+#include <cpptrace/cpptrace.hpp>
+#include <cpptrace/from_current.hpp>
 #include <filesystem>
 #include <iostream>
 
@@ -24,6 +26,8 @@ void* tapp_init()
         pEngine->Destroy();
         return nullptr;
     }
+    // cpptrace::absorb_trace_exceptions(false);
+    // cpptrace::register_terminate_handler();
     return (int*)pEngine;
 }
 
@@ -68,8 +72,8 @@ int tapp_run(void* handle, unsigned char* img_data, const char* img_info)
         return (int)ErrorCode::INVALID_HANDLE;
     }
 
-    try {
-
+    CPPTRACE_TRY
+    {
         InferTaskPtr task = std::make_shared<stInferTask>();
         task->image_info  = Utils::ParseJsonText(img_info);
         if (img_data != nullptr) {
@@ -88,23 +92,34 @@ int tapp_run(void* handle, unsigned char* img_data, const char* img_info)
             LOGE("Gen image obj fail! Wrong image parameter!!");
             return int(ErrorCode::WRONG_PARAM);
         }
-
         // 提交推理任务
         pEngine->CommitInferTask(task);
         LOGI("tapp_run() End.")
         return ret;
     }
-    catch (const nlohmann::json::exception& e) {
+
+    CPPTRACE_CATCH(const nlohmann::json::exception& e)
+    {
         LOGE("Json exception: {}", e.what());
-
+        cpptrace::from_current_exception().print();
+        LOGE("from_current_exception: {}", cpptrace::from_current_exception().to_string());
+        cpptrace::from_current_exception().print(std::ofstream("terminate_trace.txt", std::ios::app));
     }
-    catch (const cv::Exception& e) {
+    CPPTRACE_CATCH_ALT(const cv::Exception& e)
+    {
         LOGE("OpenCV exception: {}", e.what());
-
+        cpptrace::from_current_exception().print();
+        LOGE("from_current_exception: {}", cpptrace::from_current_exception().to_string());
+        cpptrace::from_current_exception().print(std::ofstream("terminate_trace.txt", std::ios::app));
     }
-    catch (const std::exception& e) {
+    CPPTRACE_CATCH_ALT(const std::exception& e)
+    {
         LOGE("Unkown exception: {}", e.what());
+        cpptrace::from_current_exception().print();
+        LOGE("from_current_exception: {}", cpptrace::from_current_exception().to_string());
+        cpptrace::from_current_exception().print(std::ofstream("terminate_trace.txt", std::ios::app));
     }
+
 
     LOGI("tapp_run() Fail!!")
     return (int)ErrorCode::UNKNOWN_ERROR;
@@ -123,7 +138,8 @@ const char* tapp_sync_run(void* handle, unsigned char* img_data, const char* img
         return Utils::DumpJson(Utils::GenErrorResult(ErrorCode::INVALID_HANDLE)).c_str();
     }
 
-    try {
+    CPPTRACE_TRY
+    {
 
         InferTaskPtr task = std::make_shared<stInferTask>();
         task->image_info  = Utils::ParseJsonText(img_info);
@@ -135,14 +151,26 @@ const char* tapp_sync_run(void* handle, unsigned char* img_data, const char* img
         }
         return Utils::DumpJson(pEngine->SyncRunInferTask(task)).c_str();
     }
-    catch (const nlohmann::json::exception& e) {
+    CPPTRACE_CATCH(const nlohmann::json::exception& e)
+    {
         LOGE("Json exception: {}", e.what());
+        cpptrace::from_current_exception().print();
+        LOGE("from_current_exception: {}", cpptrace::from_current_exception().to_string());
+        cpptrace::from_current_exception().print(std::ofstream("terminate_trace.txt", std::ios::app));
     }
-    catch (const cv::Exception& e) {
+    CPPTRACE_CATCH_ALT(const cv::Exception& e)
+    {
         LOGE("OpenCV exception: {}", e.what());
+        cpptrace::from_current_exception().print();
+        LOGE("from_current_exception: {}", cpptrace::from_current_exception().to_string());
+        cpptrace::from_current_exception().print(std::ofstream("terminate_trace.txt", std::ios::app));
     }
-    catch (const std::exception& e) {
+    CPPTRACE_CATCH_ALT(const std::exception& e)
+    {
         LOGE("Unkown exception: {}", e.what());
+        cpptrace::from_current_exception().print();
+        LOGE("from_current_exception: {}", cpptrace::from_current_exception().to_string());
+        cpptrace::from_current_exception().print(std::ofstream("terminate_trace.txt", std::ios::app));
     }
 
     return Utils::DumpJson(Utils::GenErrorResult(ErrorCode::UNKNOWN_ERROR)).c_str();

@@ -6,7 +6,7 @@
 
         "algo_params": [
             {
-                "algo_name": "OcrDemo",
+                "algo_name": "AlgoA",
                 "algo_index": 1,
                 "param": {
                 }

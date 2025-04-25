@@ -3,8 +3,6 @@ set_version("1.0.0")
 set_languages("c++17")
 add_rules("mode.debug", "mode.release","mode.releasedbg")
 
--- 指定三方库目录
-local thirdparty = "E:/demo/3rdparty/algo_3rdparty/tv_algo_base_3rdparty/"
 
 add_requires("opencv 4.8.0",{system = false})
 add_requires("nlohmann_json v3.11.3",{system = false})
@@ -29,17 +27,6 @@ if is_mode "release" then
 	set_optimize "none"
     set_symbols("debug")
 end
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -78,5 +65,7 @@ target("test_dll")
 	add_deps("tv_algorithm")
     add_defines("EXPORT_API")
 	add_files("test/main.cpp")
+    add_files("test/fs.cpp")
+    add_files("src/utils/StringConvert.cpp")
 
 

@@ -1,18 +1,14 @@
-﻿#include "../utils/Logger.h"
+﻿#include "InferenceEngine.h"
+#include "../utils/Logger.h"
 #include "../utils/Utils.h"
-#include "InferenceEngine.h"
 #include "BaseAlgoGroup.h"
 #include "ErrorDefine.h"
-
+#include <cpptrace/from_current.hpp>
 
 #if USE_AI_DETECT
 #include <AIRuntimeInterface.h>
 #endif
 
-#if USE_TIVAL
-    #include "TivalCore.h"
-    using namespace Tival;
-#endif
 
 
 #define TASK_THRD_POOL_SIZE_KEY "task_thread_pool_size"
@@ -230,7 +226,8 @@ FinalResultPtr InferenceEngine::RunTask(InferTaskPtr task)
 {
     FinalResultPtr final_result;
 
-    try {
+    CPPTRACE_TRY
+    {
         std::string type_id = task->image_info["type_id"];
         std::string img_name = task->image_info["img_name"];
         LOGI("Start Run Task, type_id:{} img_name:{}",  type_id, img_name);
@@ -239,19 +236,32 @@ FinalResultPtr InferenceEngine::RunTask(InferTaskPtr task)
         if (pGroup == nullptr)
         {
             LOGE("RunTask fail!! Can not find AlgoGroup for type_id:{}", type_id);
-            return {};
+            return nullptr;
         }
 
         final_result = pGroup->RunGroup(task);
         LOGI("RunTask complete. type_id:{} img_name:{}", type_id, img_name);
-    } catch (const nlohmann::json::exception& e) {
+    }
+    CPPTRACE_CATCH(const nlohmann::json::exception& e)
+    {
         LOGE("Json exception: {}", e.what());
-
-    }  catch (const cv::Exception& e) {
+        cpptrace::from_current_exception().print();
+        LOGE("from_current_exception: {}", cpptrace::from_current_exception().to_string());
+        cpptrace::from_current_exception().print(std::ofstream("terminate_trace.txt", std::ios::app));
+    }
+    CPPTRACE_CATCH_ALT(const cv::Exception& e)
+    {
         LOGE("OpenCV exception: {}", e.what());
-
-    } catch (const std::exception& e) {
+        cpptrace::from_current_exception().print();
+        LOGE("from_current_exception: {}", cpptrace::from_current_exception().to_string());
+        cpptrace::from_current_exception().print(std::ofstream("terminate_trace.txt", std::ios::app));
+    }
+    CPPTRACE_CATCH_ALT(const std::exception& e)
+    {
         LOGE("Unkown exception: {}", e.what());
+        cpptrace::from_current_exception().print();
+        LOGE("from_current_exception: {}", cpptrace::from_current_exception().to_string());
+        cpptrace::from_current_exception().print(std::ofstream("terminate_trace.txt", std::ios::app));
     }
 
     return final_result;

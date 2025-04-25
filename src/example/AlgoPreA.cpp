@@ -1,4 +1,4 @@
-#include <windows.h>
+
 #include "../framework/InferenceEngine.h"
 #include "../utils/logger.h"
 #include "AlgoPreA.h"
