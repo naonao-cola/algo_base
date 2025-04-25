@@ -1,27 +1,28 @@
-#pragma once
+﻿#pragma once
 
-#include <windows.h>
-#include <locale.h>
 #include <iostream>
+#include <locale.h>
+#include <windows.h>
+
 
 class StringConvert
 {
 public:
-    static bool AnsiToUnicode(const char *lpszAnsi, wchar_t *lpszUnicode, int nLen)
+    static bool AnsiToUnicode(const char* lpszAnsi, wchar_t* lpszUnicode, int nLen)
     {
         int nRet = MultiByteToWideChar(CP_ACP, 0, lpszAnsi, -1, lpszUnicode, nLen);
         return (0 == nRet) ? FALSE : TRUE;
     }
 
-    static bool UnicodeToAnsi(const wchar_t *lpszUnicode, char *lpszAnsi, int nLen)
+    static bool UnicodeToAnsi(const wchar_t* lpszUnicode, char* lpszAnsi, int nLen)
     {
         int nRet = WideCharToMultiByte(CP_ACP, 0, lpszUnicode, -1, lpszAnsi, nLen, NULL, NULL);
         return (0 == nRet) ? FALSE : TRUE;
     }
 
-    static bool AnsiToUtf8(const char *lpszAnsi, char *lpszUtf8, int nLen)
+    static bool AnsiToUtf8(const char* lpszAnsi, char* lpszUtf8, int nLen)
     {
-        wchar_t *lpszUnicode = AnsiToUnicode(lpszAnsi);
+        wchar_t* lpszUnicode = AnsiToUnicode(lpszAnsi);
         if (NULL == lpszUnicode)
             return FALSE;
 
@@ -32,9 +33,9 @@ public:
         return (0 == nRet) ? FALSE : TRUE;
     }
 
-    static bool Utf8ToAnsi(const char *lpszUtf8, char *lpszAnsi, int nLen)
+    static bool Utf8ToAnsi(const char* lpszUtf8, char* lpszAnsi, int nLen)
     {
-        wchar_t *lpszUnicode = Utf8ToUnicode(lpszUtf8);
+        wchar_t* lpszUnicode = Utf8ToUnicode(lpszUtf8);
         if (NULL == lpszUnicode)
             return FALSE;
 
@@ -45,38 +46,36 @@ public:
         return (0 == nRet) ? FALSE : TRUE;
     }
 
-    static bool UnicodeToUtf8(const wchar_t *lpszUnicode, char *lpszUtf8, int nLen)
+    static bool UnicodeToUtf8(const wchar_t* lpszUnicode, char* lpszUtf8, int nLen)
     {
         int nRet = WideCharToMultiByte(CP_UTF8, 0, lpszUnicode, -1, lpszUtf8, nLen, NULL, NULL);
         return (0 == nRet) ? FALSE : TRUE;
     }
 
-    static bool Utf8ToUnicode(const char *lpszUtf8, wchar_t *lpszUnicode, int nLen)
+    static bool Utf8ToUnicode(const char* lpszUtf8, wchar_t* lpszUnicode, int nLen)
     {
         int nRet = MultiByteToWideChar(CP_UTF8, 0, lpszUtf8, -1, lpszUnicode, nLen);
         return (0 == nRet) ? FALSE : TRUE;
     }
 
-    static std::wstring AnsiToUnicode(const std::string &strAnsi)
+    static std::wstring AnsiToUnicode(const std::string& strAnsi)
     {
         std::wstring strUnicode;
 
-        wchar_t *lpszUnicode = AnsiToUnicode(strAnsi.c_str());
-        if (lpszUnicode != NULL)
-        {
+        wchar_t* lpszUnicode = AnsiToUnicode(strAnsi.c_str());
+        if (lpszUnicode != NULL) {
             strUnicode = lpszUnicode;
             delete[] lpszUnicode;
         }
 
         return strUnicode;
     }
-    static std::string UnicodeToAnsi(const std::wstring &strUnicode)
+    static std::string UnicodeToAnsi(const std::wstring& strUnicode)
     {
         std::string strAnsi;
 
-        char *lpszAnsi = UnicodeToAnsi(strUnicode.c_str());
-        if (lpszAnsi != NULL)
-        {
+        char* lpszAnsi = UnicodeToAnsi(strUnicode.c_str());
+        if (lpszAnsi != NULL) {
             strAnsi = lpszAnsi;
             delete[] lpszAnsi;
         }
@@ -84,13 +83,12 @@ public:
         return strAnsi;
     }
 
-    static std::string AnsiToUtf8(const std::string &strAnsi)
+    static std::string AnsiToUtf8(const std::string& strAnsi)
     {
         std::string strUtf8;
 
-        char *lpszUtf8 = AnsiToUtf8(strAnsi.c_str());
-        if (lpszUtf8 != NULL)
-        {
+        char* lpszUtf8 = AnsiToUtf8(strAnsi.c_str());
+        if (lpszUtf8 != NULL) {
             strUtf8 = lpszUtf8;
             delete[] lpszUtf8;
         }
@@ -98,13 +96,12 @@ public:
         return strUtf8;
     }
 
-    static std::string Utf8ToAnsi(const std::string &strUtf8)
+    static std::string Utf8ToAnsi(const std::string& strUtf8)
     {
         std::string strAnsi;
 
-        char *lpszAnsi = Utf8ToAnsi(strUtf8.c_str());
-        if (lpszAnsi != NULL)
-        {
+        char* lpszAnsi = Utf8ToAnsi(strUtf8.c_str());
+        if (lpszAnsi != NULL) {
             strAnsi = lpszAnsi;
             delete[] lpszAnsi;
         }
@@ -112,13 +109,12 @@ public:
         return strAnsi;
     }
 
-    static std::string UnicodeToUtf8(const std::wstring &strUnicode)
+    static std::string UnicodeToUtf8(const std::wstring& strUnicode)
     {
         std::string strUtf8;
 
-        char *lpszUtf8 = UnicodeToUtf8(strUnicode.c_str());
-        if (lpszUtf8 != NULL)
-        {
+        char* lpszUtf8 = UnicodeToUtf8(strUnicode.c_str());
+        if (lpszUtf8 != NULL) {
             strUtf8 = lpszUtf8;
             delete[] lpszUtf8;
         }
@@ -126,13 +122,12 @@ public:
         return strUtf8;
     }
 
-    static std::wstring Utf8ToUnicode(const std::string &strUtf8)
+    static std::wstring Utf8ToUnicode(const std::string& strUtf8)
     {
         std::wstring strUnicode;
 
-        wchar_t *lpszUnicode = Utf8ToUnicode(strUtf8.c_str());
-        if (lpszUnicode != NULL)
-        {
+        wchar_t* lpszUnicode = Utf8ToUnicode(strUtf8.c_str());
+        if (lpszUnicode != NULL) {
             strUnicode = lpszUnicode;
             delete[] lpszUnicode;
         }
@@ -142,10 +137,10 @@ public:
 
 private:
     // 以下方法需要手动释放内存，容易引起内存泄露，不推荐使用
-    static wchar_t *AnsiToUnicode(const char *lpszStr)
+    static wchar_t* AnsiToUnicode(const char* lpszStr)
     {
-        wchar_t *lpUnicode;
-        int nLen;
+        wchar_t* lpUnicode;
+        int      nLen;
 
         if (NULL == lpszStr)
             return NULL;
@@ -160,8 +155,7 @@ private:
 
         memset(lpUnicode, 0, sizeof(wchar_t) * (nLen + 1));
         nLen = MultiByteToWideChar(CP_ACP, 0, lpszStr, -1, lpUnicode, nLen);
-        if (0 == nLen)
-        {
+        if (0 == nLen) {
             delete[] lpUnicode;
             return NULL;
         }
@@ -169,10 +163,10 @@ private:
         return lpUnicode;
     }
 
-    static char *UnicodeToAnsi(const wchar_t *lpszStr)
+    static char* UnicodeToAnsi(const wchar_t* lpszStr)
     {
-        char *lpAnsi;
-        int nLen;
+        char* lpAnsi;
+        int   nLen;
 
         if (NULL == lpszStr)
             return NULL;
@@ -187,8 +181,7 @@ private:
 
         memset(lpAnsi, 0, nLen + 1);
         nLen = WideCharToMultiByte(CP_ACP, 0, lpszStr, -1, lpAnsi, nLen, NULL, NULL);
-        if (0 == nLen)
-        {
+        if (0 == nLen) {
             delete[] lpAnsi;
             return NULL;
         }
@@ -196,11 +189,11 @@ private:
         return lpAnsi;
     }
 
-    static char *AnsiToUtf8(const char *lpszStr)
+    static char* AnsiToUtf8(const char* lpszStr)
     {
-        wchar_t *lpUnicode;
-        char *lpUtf8;
-        int nLen;
+        wchar_t* lpUnicode;
+        char*    lpUtf8;
+        int      nLen;
 
         if (NULL == lpszStr)
             return NULL;
@@ -215,30 +208,26 @@ private:
 
         memset(lpUnicode, 0, sizeof(wchar_t) * (nLen + 1));
         nLen = MultiByteToWideChar(CP_ACP, 0, lpszStr, -1, lpUnicode, nLen);
-        if (0 == nLen)
-        {
+        if (0 == nLen) {
             delete[] lpUnicode;
             return NULL;
         }
 
         nLen = WideCharToMultiByte(CP_UTF8, 0, lpUnicode, -1, NULL, 0, NULL, NULL);
-        if (0 == nLen)
-        {
+        if (0 == nLen) {
             delete[] lpUnicode;
             return NULL;
         }
 
         lpUtf8 = new char[nLen + 1];
-        if (NULL == lpUtf8)
-        {
+        if (NULL == lpUtf8) {
             delete[] lpUnicode;
             return NULL;
         }
 
         memset(lpUtf8, 0, nLen + 1);
         nLen = WideCharToMultiByte(CP_UTF8, 0, lpUnicode, -1, lpUtf8, nLen, NULL, NULL);
-        if (0 == nLen)
-        {
+        if (0 == nLen) {
             delete[] lpUnicode;
             delete[] lpUtf8;
             return NULL;
@@ -249,11 +238,11 @@ private:
         return lpUtf8;
     }
 
-    static char *Utf8ToAnsi(const char *lpszStr)
+    static char* Utf8ToAnsi(const char* lpszStr)
     {
-        wchar_t *lpUnicode;
-        char *lpAnsi;
-        int nLen;
+        wchar_t* lpUnicode;
+        char*    lpAnsi;
+        int      nLen;
 
         if (NULL == lpszStr)
             return NULL;
@@ -268,30 +257,26 @@ private:
 
         memset(lpUnicode, 0, sizeof(wchar_t) * (nLen + 1));
         nLen = MultiByteToWideChar(CP_UTF8, 0, lpszStr, -1, lpUnicode, nLen);
-        if (0 == nLen)
-        {
+        if (0 == nLen) {
             delete[] lpUnicode;
             return NULL;
         }
 
         nLen = WideCharToMultiByte(CP_ACP, 0, lpUnicode, -1, NULL, 0, NULL, NULL);
-        if (0 == nLen)
-        {
+        if (0 == nLen) {
             delete[] lpUnicode;
             return NULL;
         }
 
         lpAnsi = new char[nLen + 1];
-        if (NULL == lpAnsi)
-        {
+        if (NULL == lpAnsi) {
             delete[] lpUnicode;
             return NULL;
         }
 
         memset(lpAnsi, 0, nLen + 1);
         nLen = WideCharToMultiByte(CP_ACP, 0, lpUnicode, -1, lpAnsi, nLen, NULL, NULL);
-        if (0 == nLen)
-        {
+        if (0 == nLen) {
             delete[] lpUnicode;
             delete[] lpAnsi;
             return NULL;
@@ -302,10 +287,10 @@ private:
         return lpAnsi;
     }
 
-    static char *UnicodeToUtf8(const wchar_t *lpszStr)
+    static char* UnicodeToUtf8(const wchar_t* lpszStr)
     {
-        char *lpUtf8;
-        int nLen;
+        char* lpUtf8;
+        int   nLen;
 
         if (NULL == lpszStr)
             return NULL;
@@ -320,8 +305,7 @@ private:
 
         memset(lpUtf8, 0, nLen + 1);
         nLen = WideCharToMultiByte(CP_UTF8, 0, lpszStr, -1, lpUtf8, nLen, NULL, NULL);
-        if (0 == nLen)
-        {
+        if (0 == nLen) {
             delete[] lpUtf8;
             return NULL;
         }
@@ -329,10 +313,10 @@ private:
         return lpUtf8;
     }
 
-    static wchar_t *Utf8ToUnicode(const char *lpszStr)
+    static wchar_t* Utf8ToUnicode(const char* lpszStr)
     {
-        wchar_t *lpUnicode;
-        int nLen;
+        wchar_t* lpUnicode;
+        int      nLen;
 
         if (NULL == lpszStr)
             return NULL;
@@ -347,8 +331,7 @@ private:
 
         memset(lpUnicode, 0, sizeof(wchar_t) * (nLen + 1));
         nLen = MultiByteToWideChar(CP_UTF8, 0, lpszStr, -1, lpUnicode, nLen);
-        if (0 == nLen)
-        {
+        if (0 == nLen) {
             delete[] lpUnicode;
             return NULL;
         }

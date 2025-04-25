@@ -1,16 +1,14 @@
+﻿#include "AlgoManager.h"
 #include "../utils/Utils.h"
 #include "../utils/logger.h"
-#include "AlgoManager.h"
-#include "InferenceEngine.h"
-#include "ErrorDefine.h"
 #include "BaseAlgoGroup.h"
+#include "ErrorDefine.h"
+#include "InferenceEngine.h"
 
 
-AlgoManager::AlgoManager()
-{}
+AlgoManager::AlgoManager() {}
 
-AlgoManager::~AlgoManager()
-{}
+AlgoManager::~AlgoManager() {}
 
 ErrorCode AlgoManager::ConfigAlgoParams(const json& algo_all_cfg)
 {
@@ -19,10 +17,9 @@ ErrorCode AlgoManager::ConfigAlgoParams(const json& algo_all_cfg)
         return ErrorCode::WRONG_STATE;
     }
     ErrorCode e_code = ErrorCode::OK;
-    for (auto algo_group_cfg : algo_all_cfg)
-    {
-        std::string type_id = algo_group_cfg["type_id"];
-        std::string type_name = algo_group_cfg["type_name"];
+    for (auto algo_group_cfg : algo_all_cfg) {
+        std::string    type_id    = algo_group_cfg["type_id"];
+        std::string    type_name  = algo_group_cfg["type_name"];
         BaseAlgoGroup* algo_group = GetAlgoGroupByID(type_id);
         if (algo_group == nullptr) {
             algo_group = AlgoManager::CreateAlgoGroup(type_name + ALGO_GROUP_SUFFIX);
@@ -31,9 +28,10 @@ ErrorCode AlgoManager::ConfigAlgoParams(const json& algo_all_cfg)
                 return ErrorCode::WRONG_PARAM;
             }
         }
-        
-        e_code  = algo_group->SetParams(algo_group_cfg);
-        if (e_code != ErrorCode::OK) return e_code;
+
+        e_code = algo_group->SetParams(algo_group_cfg);
+        if (e_code != ErrorCode::OK)
+            return e_code;
 
         m_algogroup_list.emplace_back(algo_group);
     }
@@ -59,8 +57,7 @@ void AlgoManager::DeleteAlgo(BaseAlgo* pAlgo)
 
 BaseAlgo* AlgoManager::GetAlgo(std::string algo_name)
 {
-    for (auto algo : m_algo_list)
-    {
+    for (auto algo : m_algo_list) {
         if (algo->GetName() == algo_name) {
             return algo;
         }
@@ -70,8 +67,7 @@ BaseAlgo* AlgoManager::GetAlgo(std::string algo_name)
 
 BaseAlgoGroup* AlgoManager::GetAlgoGroupByID(std::string type_id)
 {
-    for (auto algogroup : m_algogroup_list)
-    {
+    for (auto algogroup : m_algogroup_list) {
         if (algogroup->GetTypeID() == type_id) {
             return algogroup;
         }
@@ -81,8 +77,7 @@ BaseAlgoGroup* AlgoManager::GetAlgoGroupByID(std::string type_id)
 
 BaseAlgoGroup* AlgoManager::GetALgoGroupByName(std::string type_name)
 {
-    for (auto algogroup : m_algogroup_list)
-    {
+    for (auto algogroup : m_algogroup_list) {
         if (algogroup->GetTypeName() == type_name) {
             return algogroup;
         }
@@ -92,16 +87,14 @@ BaseAlgoGroup* AlgoManager::GetALgoGroupByName(std::string type_name)
 
 void AlgoManager::Destroy()
 {
-     for (auto algogroup : m_algogroup_list)
-     {
+    for (auto algogroup : m_algogroup_list) {
         delete algogroup;
-     }
-     for (auto algo: m_algo_list)
-     {
+    }
+    for (auto algo : m_algo_list) {
         delete algo;
-     }
-     m_algogroup_list.clear();
-     m_algo_list.clear();
+    }
+    m_algogroup_list.clear();
+    m_algo_list.clear();
 }
 
 
@@ -112,41 +105,37 @@ void AlgoManager::Destroy()
 //----------------------------------------------------------------
 // ----------- Register class functions below ---------------------
 //----------------------------------------------------------------
-void AlgoManager::RegisterAlgoGroup(const std::string &class_name, std::function<BaseAlgoGroup *()> constructor)
+void AlgoManager::RegisterAlgoGroup(const std::string& class_name, std::function<BaseAlgoGroup*()> constructor)
 {
     sAlgoGroupConstructors()[class_name] = constructor;
-    std::cout << "RegisterALgoGroup: " << class_name <<std::endl;
+    std::cout << "RegisterALgoGroup: " << class_name << std::endl;
 }
 
-void AlgoManager::RegisterAlgo(const std::string &class_name, std::function<BaseAlgo *()> constructor)
+void AlgoManager::RegisterAlgo(const std::string& class_name, std::function<BaseAlgo*()> constructor)
 {
     sAlgoConstructors()[class_name] = constructor;
     std::cout << "RegisterAlgo: " << class_name << std::endl;
 }
 
-BaseAlgoGroup *AlgoManager::CreateAlgoGroup(const std::string &class_name)
+BaseAlgoGroup* AlgoManager::CreateAlgoGroup(const std::string& class_name)
 {
     auto it = sAlgoGroupConstructors().find(class_name);
-    if (it != sAlgoGroupConstructors().end())
-    {
+    if (it != sAlgoGroupConstructors().end()) {
         return it->second();
     }
-    else
-    {
+    else {
         LOGE("Unknown AlgoGroup class name: {}", class_name);
         return nullptr;
     }
 }
 
-BaseAlgo *AlgoManager::CreateAlgo(const std::string &class_name)
+BaseAlgo* AlgoManager::CreateAlgo(const std::string& class_name)
 {
     auto it = sAlgoConstructors().find(class_name);
-    if (it != sAlgoConstructors().end())
-    {
+    if (it != sAlgoConstructors().end()) {
         return it->second();
     }
-    else
-    {
+    else {
         LOGE("Unknown Algo class name: {}", class_name);
         return nullptr;
     }

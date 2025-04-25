@@ -1,10 +1,9 @@
 ﻿#include "../utils/Logger.h"
 #include "../utils/Utils.h"
-#include "../utils/CrashCatch.h"
 #include "InferenceEngine.h"
 #include "BaseAlgoGroup.h"
 #include "ErrorDefine.h"
-#include "tv_license.h"
+
 
 #if USE_AI_DETECT
 #include <AIRuntimeInterface.h>
@@ -42,34 +41,12 @@ InferenceEngine::~InferenceEngine()
 ErrorCode InferenceEngine::Init()
 {
     int ret = 0;
-#if USE_LICENSE
-    ret = TVLicense::Instance()->Init(LICENSE_SOLUTION_ID);
-    if (ret != 0) {
-        LOGE("InferenceEngine init fail. license error: {}", ret);
-        return ErrorCode::LICENSE_ERROR;
-    }
-#endif
 
-#if USE_TIVAL
-    ret = Tival::TivalCore::Init(LICENSE_SOLUTION_ID);
-    if (ret != 0) {
-        LOGE("InferenceEngine init fail. license error: {}", ret);
-        return ErrorCode::LICENSE_ERROR;
-    }
-#endif
 
     return ErrorCode::OK;
 }
 
-ErrorCode InferenceEngine::LicenseVerify()
-{
-    int ret = TVLicense::Instance()->Verify(MODULE_IDS);
-    if (ret != 0) {
-        LOGE("License verify fail. modules:{} err:{}", std::string(MODULE_IDS), ret);
-        return ErrorCode::LICENSE_ERROR;
-    }
-    return ErrorCode::OK;
-}
+
 
 void InferenceEngine::Destroy()
 {
@@ -102,10 +79,6 @@ void InferenceEngine::Destroy()
     m_algo_thread_pool = nullptr;
     m_result_thread = nullptr;
 
-#if USE_AI_DETECT
-    GetAIRuntime()->DestoryRuntime();
-#endif
-    TVLicense::Instance()->Destroy();
 }
 
 ErrorCode InferenceEngine::ConfigSystemParams(const json &common_cfg)
@@ -148,21 +121,9 @@ ErrorCode InferenceEngine::ConfigSystemParams(const json &common_cfg)
             model_cfg.inferParam.enableDetMat = Utils::GetProperty(m_InferParam, "enableDetMat", 0);
             model_cfg.inferParam.useDilat = Utils::GetProperty(m_InferParam, "useDilat", 1);
             model_cfg.inferParam.kernelSize = Utils::GetProperty(m_InferParam, "kernelSize", 3);
-            model_cfg.modleLabelPath = Utils::GetProperty(ai_param, "label_path", std::string("")); 
+            model_cfg.modleLabelPath = Utils::GetProperty(ai_param, "label_path", std::string(""));
             model_cfg.algoType = (eAIAlgoType)Utils::GetProperty(ai_param, "algo_type", 1);
 
-            // stAIModelInfo model_cfg;
-            // model_cfg.modelId = Utils::GetProperty(ai_param, "model_id", -1);
-            // model_cfg.modelVersion = Utils::GetProperty(ai_param, "model_version", 1);
-            // model_cfg.modelName = Utils::GetProperty(ai_param, "model_name", std::string(""));
-            // model_cfg.modelPath = Utils::GetProperty(ai_param, "model_path", std::string(""));
-            // model_cfg.modelBackend = Utils::GetProperty(ai_param, "model_backend", std::string("tensorrt"));
-            // model_cfg.inferParam.confidenceThreshold = Utils::GetProperty(ai_param, "conf_threshold", 0.5);
-            // model_cfg.inferParam.maxBatchSize = Utils::GetProperty(ai_param, "batch_size", 1);
-            // model_cfg.inferParam.nmsThreshold = Utils::GetProperty(ai_param, "nms_iou", 0.5);
-            // model_cfg.inferParam.maxObjectNums = Utils::GetProperty(ai_param, "max_obj_num", 100); 
-            // model_cfg.modleLabelPath = Utils::GetProperty(ai_param, "label_path", std::string("")); 
-            // model_cfg.algoType = (eAIAlgoType)Utils::GetProperty(ai_param, "algo_type", 1);
 
             if (model_cfg.modelId < 0) {
                 LOGE("Wrong model ID: {}", model_cfg.modelId);
@@ -210,11 +171,11 @@ ErrorCode InferenceEngine::ConfigAlgoParams(const json &algo_all_cfg)
 ErrorCode InferenceEngine::CommitInferTask(InferTaskPtr task)
 {
     LOGI("CommitInferTask: {}", Utils::DumpJson(task->image_info));
-    
+
     if (m_task_thread_pool == nullptr) {
         return ErrorCode::NOT_READY;
     }
-    
+
     if (!m_future_results.try_push(m_task_thread_pool->enqueue([=]()
                                        { return this->RunTask(task); })))
     {
@@ -285,13 +246,12 @@ FinalResultPtr InferenceEngine::RunTask(InferTaskPtr task)
         LOGI("RunTask complete. type_id:{} img_name:{}", type_id, img_name);
     } catch (const nlohmann::json::exception& e) {
         LOGE("Json exception: {}", e.what());
-        CrashCatch::PrintExceptionStackTrace();
+
     }  catch (const cv::Exception& e) {
         LOGE("OpenCV exception: {}", e.what());
-        CrashCatch::PrintExceptionStackTrace();
+
     } catch (const std::exception& e) {
         LOGE("Unkown exception: {}", e.what());
-        CrashCatch::PrintExceptionStackTrace();
     }
 
     return final_result;

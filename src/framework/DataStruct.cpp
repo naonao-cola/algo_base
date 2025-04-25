@@ -42,7 +42,7 @@ cv::Mat OcrData::GetCropImage(const cv::Mat& srcimage)
 {
     std::vector<std::vector<int>> box = {
         {
-            {(int)points[0].x, (int)points[0].y}, 
+            {(int)points[0].x, (int)points[0].y},
             {(int)points[1].x, (int)points[1].y},
             {(int)points[2].x, (int)points[2].y},
             {(int)points[3].x, (int)points[3].y},
@@ -58,7 +58,7 @@ cv::Mat OcrData::GetCropImage(const cv::Mat& srcimage)
     int y_max = *std::max_element(y_vec.begin(), y_vec.end());
     if (x_max - x_min < 3 || y_max - y_min < 3)
         return cv::Mat();
-    
+
     cv::Mat image;
     srcimage.copyTo(image);
     std::vector<std::vector<int>> points = box;

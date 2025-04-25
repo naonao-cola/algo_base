@@ -1,9 +1,20 @@
+﻿/**
+ * @FilePath     : /algo_base/src/utils/Utils.cpp
+ * @Description  :
+ * @Author       : naonao
+ * @Date         : 2025-03-24 10:11:55
+ * @Version      : 0.0.1
+ * @LastEditors  : naonao
+ * @LastEditTime : 2025-04-25 11:09:10
+ * @Copyright (c) 2025 by G, All Rights Reserved.
+**/
+
 #include "Utils.h"
 #include "Logger.h"
 
 json Utils::ReadJsonFile(std::string filepath)
 {
-    std::ifstream conf_i(filepath);
+    std::ifstream     conf_i(filepath);
     std::stringstream ss_config;
     ss_config << conf_i.rdbuf();
     json jsonObj = json::parse(ss_config.str());
@@ -14,7 +25,7 @@ json Utils::ReadJsonFile(std::string filepath)
 json Utils::ParseJsonText(const char* json_text, bool is_ansi)
 {
     std::string utf8_text = is_ansi ? StringConvert::AnsiToUtf8(std::string(json_text)) : std::string(json_text);
-    json jsonObj = json::parse(utf8_text);
+    json        jsonObj   = json::parse(utf8_text);
     return std::move(jsonObj);
 }
 
@@ -28,10 +39,11 @@ cv::Mat Utils::GenCvImage(unsigned char* img_data, const json& img_info)
     int img_w = Utils::GetProperty(img_info, "img_w", 0);
     int img_h = Utils::GetProperty(img_info, "img_h", 0);
     int img_c = Utils::GetProperty(img_info, "img_c", 0);
-    if (img_w <= 0 || img_h <=0 || img_c < 1 || img_c > 4) {
+    if (img_w <= 0 || img_h <= 0 || img_c < 1 || img_c > 4) {
         LOGE("Wrong image info!!  img_w:{}, img_h:{} img_c:{}", img_w, img_h, img_c);
         return cv::Mat();
-    } else {
+    }
+    else {
         cv::Mat image = cv::Mat(img_h, img_w, Utils::GetCvType(img_c), img_data);
         return image.clone();
     }
@@ -39,13 +51,14 @@ cv::Mat Utils::GenCvImage(unsigned char* img_data, const json& img_info)
 
 cv::Mat Utils::CenterCrop(const cv::Mat& image, int width, int height, bool bClone)
 {
-    width = std::min(width, image.cols);
-    height = std::min(height, image.rows);
-    int x = (image.cols - width) / 2;
-    int y = (image.rows - height) / 2;
+    width  = (std::min)(width, image.cols);
+    height = (std::min)(height, image.rows);
+    int x  = (image.cols - width) / 2;
+    int y  = (image.rows - height) / 2;
     if (bClone) {
         return image(cv::Rect(x, y, width, height)).clone();
-    } else {
+    }
+    else {
         return image(cv::Rect(x, y, width, height));
     }
 }
@@ -53,8 +66,7 @@ cv::Mat Utils::CenterCrop(const cv::Mat& image, int width, int height, bool bClo
 int Utils::GetCvType(int img_c)
 {
     int cv_type = CV_8UC1;
-    switch (img_c)
-    {
+    switch (img_c) {
     case 1:
         cv_type = CV_8UC1;
         break;
@@ -76,8 +88,7 @@ int Utils::GetCvType(int img_c)
 
 std::string Utils::GetErrorCodeText(ErrorCode errCode)
 {
-    switch (errCode)
-    {
+    switch (errCode) {
     case ErrorCode::OK:
         return "OK";
     case ErrorCode::ABNORMAL_IMAGE:
@@ -113,11 +124,7 @@ std::string Utils::GetErrorCodeText(ErrorCode errCode)
 
 json Utils::GenErrorResult(ErrorCode err_code)
 {
-    return {
-        { "class_list", json::array() },
-        { "status", Utils::GetErrorCodeText(err_code) },
-        { "shapes", json::array() }
-    };
+    return {{"class_list", json::array()}, {"status", Utils::GetErrorCodeText(err_code)}, {"shapes", json::array()}};
 }
 
 bool Utils::IsUtf8(const std::string& str)
@@ -127,22 +134,26 @@ bool Utils::IsUtf8(const std::string& str)
         if (ch <= 0x7F) {
             // 单字节UTF-8字符
             continue;
-        } else if (ch >= 0xC2 && ch <= 0xDF) {
+        }
+        else if (ch >= 0xC2 && ch <= 0xDF) {
             // 双字节UTF-8字符
             if (i + 1 >= str.length() || (str[i + 1] & 0xC0) != 0x80)
                 return false;
             ++i;
-        } else if (ch >= 0xE0 && ch <= 0xEF) {
+        }
+        else if (ch >= 0xE0 && ch <= 0xEF) {
             // 三字节UTF-8字符
             if (i + 2 >= str.length() || (str[i + 1] & 0xC0) != 0x80 || (str[i + 2] & 0xC0) != 0x80)
                 return false;
             i += 2;
-        } else if (ch >= 0xF0 && ch <= 0xF4) {
+        }
+        else if (ch >= 0xF0 && ch <= 0xF4) {
             // 四字节UTF-8字符
             if (i + 3 >= str.length() || (str[i + 1] & 0xC0) != 0x80 || (str[i + 2] & 0xC0) != 0x80 || (str[i + 3] & 0xC0) != 0x80)
                 return false;
             i += 3;
-        } else {
+        }
+        else {
             // 非UTF-8字符
             return false;
         }
@@ -150,11 +161,9 @@ bool Utils::IsUtf8(const std::string& str)
     return true;
 }
 
-std::string Utils::ToLowerCase(const std::string& str) {
+std::string Utils::ToLowerCase(const std::string& str)
+{
     std::string result = str;
-    std::transform(result.begin(), result.end(), result.begin(), [](unsigned char c) {
-        return std::tolower(c);
-    });
+    std::transform(result.begin(), result.end(), result.begin(), [](unsigned char c) { return std::tolower(c); });
     return result;
 }
-

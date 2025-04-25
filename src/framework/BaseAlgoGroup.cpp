@@ -1,9 +1,8 @@
-#include "../utils/Utils.h"
+﻿#include "../utils/Utils.h"
 #include "../utils/logger.h"
 #include "BaseAlgoGroup.h"
 #include "AlgoManager.h"
 #include "../utils/TimeCost.h"
-#include "../utils/CrashCatch.h"
 
 
 BaseAlgoGroup::BaseAlgoGroup()
@@ -76,7 +75,7 @@ ErrorCode BaseAlgoGroup::SetAlgoParam(const json &algo_param, bool is_preprocess
 
     // 设置对应type_id的算法参数
     pAlgo->SetParam(m_type_id, algo_param);
-    
+
     return ErrorCode::OK;
 }
 
@@ -99,7 +98,7 @@ FinalResultPtr BaseAlgoGroup::RunGroup(InferTaskPtr task)
     {
         TimeCost tc;
         tc.start();
-        
+
         AlgoResultPtr pre_result;
 
         try{
@@ -108,14 +107,12 @@ FinalResultPtr BaseAlgoGroup::RunGroup(InferTaskPtr task)
             LOGI("Run PreAlgo <{}> End. cost:{}(ms)", preAlgo->GetName(), tc.get_cost_time());
         } catch (const nlohmann::json::exception& e) {
             LOGE("Json exception: {}", e.what());
-            CrashCatch::PrintExceptionStackTrace();
+
         }  catch (const cv::Exception& e) {
             LOGE("OpenCV exception: {}", e.what());
-            CrashCatch::PrintExceptionStackTrace();
         }
         catch (const std::exception& e) {
             LOGE("Unkown exception: {}", e.what());
-            CrashCatch::PrintExceptionStackTrace();
         }
 
         if (!pre_result) {
@@ -147,17 +144,17 @@ FinalResultPtr BaseAlgoGroup::RunGroup(InferTaskPtr task)
                     LOGI("Run Algo <{}> End. cost:{}(ms)", algo->GetName(), tc.get_cost_time());
                 } catch (const nlohmann::json::exception& e) {
                     LOGE("Json exception: {}", e.what());
-                    CrashCatch::PrintExceptionStackTrace();
+
                 }  catch (const cv::Exception& e) {
                     LOGE("OpenCV exception: {}", e.what());
-                    CrashCatch::PrintExceptionStackTrace();
+
                 }
                 catch (const std::exception& e) {
                     LOGE("Unkown exception: {}", e.what());
-                    CrashCatch::PrintExceptionStackTrace();
+
                 }
-                
-                return rst; 
+
+                return rst;
             }));
     }
 
@@ -169,12 +166,12 @@ FinalResultPtr BaseAlgoGroup::RunGroup(InferTaskPtr task)
             final_result->results["status"] = Utils::GetErrorCodeText(ErrorCode::UNKNOWN_ERROR);
             return final_result;
         }
-        
+
         if (ar->status != ErrorCode::OK) {
             final_result->results["status"] = Utils::GetErrorCodeText(ar->status);
             return final_result;
         }
-        
+
         // final_result->results["shapes"].emplace_back(ar->result_info);
         if (ar->result_info.is_null()) {
             continue;
@@ -188,8 +185,8 @@ FinalResultPtr BaseAlgoGroup::RunGroup(InferTaskPtr task)
             final_result->results["shapes"].emplace_back(ar->result_info);
         }
     }
-    
-    
+
+
     std::string img_name = task->image_info["img_name"];
     LOGI("Run Group <{}> End. cost:{}(ms)", m_type_name, group_tc.get_cost_time());
     return final_result;
